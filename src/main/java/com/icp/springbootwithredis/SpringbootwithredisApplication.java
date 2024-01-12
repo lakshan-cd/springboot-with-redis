@@ -5,6 +5,8 @@ import com.icp.springbootwithredis.repository.ProductDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.List;
 @SpringBootApplication
 @RestController
 @RequestMapping("/product")
+@EnableCaching
 public class SpringbootwithredisApplication {
 
 	@Autowired
@@ -28,12 +31,15 @@ public class SpringbootwithredisApplication {
 		return productDao.findALl();
 	}
 
+
 	@GetMapping("/getProductById/{id}")
+	@Cacheable(key = "#id" , value = "Product", unless = "#result.price > 26000")
 	public Product getProductById(@PathVariable int id){
 		return productDao.findProductById(id);
 	}
 
 	@DeleteMapping("/Delete/{id}")
+	@Cacheable(key = "#id" , value = "Product") //when delete from the og one it will remove from cache also
 	public String deleteProductById(@PathVariable int id){
 		return productDao.deleteById(id);
 	}
